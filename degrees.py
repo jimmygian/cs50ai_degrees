@@ -131,35 +131,61 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # print("\n")
-    # print(names, "\n")
-    # print(people, "\n")
-    # print(movies, "\n")
-    # print("\n")
+    # If source is directly connected to target, return pair
+    source_n = neighbors_for_person(source)
+    target_n = neighbors_for_person(target)
+    for pair in source_n:
+        if target in pair:
+            return [pair]
+
+    # Keep track of number of states explored
+    num_explored = 0
+
+    # Initialize frontier to starting position
+    source_node = Node(state=source, parent=None, action=None)
+    frontier = StackFrontier()
+    frontier.add(source_node)
+
+    # Initialize an empty explored set
+    explored = set()
+
+    # Keep looping until solution is found
+    while True:
+        # If nothing left in frontier, then no path
+        if frontier.empty():
+            # raise Exception("No Solution")
+            return None
+        
+        # Choose a node from frontier (same time as removing it from frontier)
+        node = frontier.remove()
+        num_explored += 1
+
+        # If node is the goal, then we have a solution
+        if node.state == target:
+            # Backtrack my way to include all pairs from source to target
+            actions = []
+
+            while node.parent is not None:
+                actions.append((node.state, node.action))
+                node = node.parent
+            actions.reverse()
+            
+            return actions
 
 
-    # TODO
+        # If not, Mark node as explored
+        explored.add(node.state)
 
-    # Complete the implementation of the shortest_path function such that 
-    # it returns the shortest path from the person with id source to the person with the id target.
+        # Add neighbors to frontier
+        neighbor = neighbors_for_person(node.state)
+        for movie_id, person_id in neighbor:
+            # print(movie_id, person_id)
+            # print(frontier.contains_state(person_id))
 
-    # Assuming there is a path from the source to the target, your function should return a list, 
-    # where each list item is the next (movie_id, person_id) pair in the path from the source to the target. 
-    # Each pair should be a tuple of two strings.
-        # For example, if the return value of shortest_path were [(1, 2), (3, 4)], 
-        # that would mean that the source starred in movie 1 with person 2, person 2 
-        # starred in movie 3 with person 4, and person 4 is the target.
+            if not frontier.contains_state(person_id) and person_id not in explored:
+                child = Node(state=person_id, parent=node, action=movie_id) 
+                frontier.add(child)
 
-    # If there are multiple paths of minimum length from the source to the target, your function can return any of them.
-
-    # If there is no possible path between two actors, your function should return None.
-
-    # You may call the neighbors_for_person function, which accepts a person’s id as input, 
-    # and returns a set of (movie_id, person_id) pairs for all people who starred in a movie with a given person.
-
-
-    # raise NotImplementedError
-    return
 
 
 def person_id_for_name(name):
