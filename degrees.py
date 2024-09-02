@@ -52,6 +52,7 @@ movies = {
 }
 """
 
+
 def load_data(directory):
     """
     Load data from CSV files into memory.
@@ -131,6 +132,11 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+
+    # If IDs are the same
+    if source == target:
+        return []
+    
 
     # Keep track of number of states explored
     num_explored = 0
