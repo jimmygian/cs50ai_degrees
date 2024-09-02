@@ -116,6 +116,7 @@ def main():
         degrees = len(path)
         print(f"{degrees} degrees of separation.")
         path = [(None, source)] + path
+
         for i in range(degrees):
             person1 = people[path[i][1]]["name"]
             person2 = people[path[i + 1][1]]["name"]
@@ -131,19 +132,12 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # If source is directly connected to target, return pair
-    source_n = neighbors_for_person(source)
-    target_n = neighbors_for_person(target)
-    for pair in source_n:
-        if target in pair:
-            return [pair]
-
     # Keep track of number of states explored
     num_explored = 0
 
     # Initialize frontier to starting position
     source_node = Node(state=source, parent=None, action=None)
-    frontier = StackFrontier()
+    frontier = QueueFrontier()
     frontier.add(source_node)
 
     # Initialize an empty explored set
@@ -151,39 +145,37 @@ def shortest_path(source, target):
 
     # Keep looping until solution is found
     while True:
+            
         # If nothing left in frontier, then no path
         if frontier.empty():
-            # raise Exception("No Solution")
             return None
         
         # Choose a node from frontier (same time as removing it from frontier)
         node = frontier.remove()
+        # Add 1 to explored  
         num_explored += 1
-
-        # If node is the goal, then we have a solution
-        if node.state == target:
-            # Backtrack my way to include all pairs from source to target
-            actions = []
-
-            while node.parent is not None:
-                actions.append((node.state, node.action))
-                node = node.parent
-            actions.reverse()
-            
-            return actions
-
 
         # If not, Mark node as explored
         explored.add(node.state)
-
+        
         # Add neighbors to frontier
-        neighbor = neighbors_for_person(node.state)
-        for movie_id, person_id in neighbor:
-            # print(movie_id, person_id)
-            # print(frontier.contains_state(person_id))
+        node_neighbours = neighbors_for_person(node.state)
+        for movie_id, person_id in node_neighbours:
 
             if not frontier.contains_state(person_id) and person_id not in explored:
                 child = Node(state=person_id, parent=node, action=movie_id) 
+
+                if child.state == target:
+                    solution = []
+
+                    while child.parent is not None:
+                        solution.append((child.action, child.state))
+                        child = child.parent
+                    solution.reverse()
+
+                    return solution
+
+
                 frontier.add(child)
 
 
