@@ -1,10 +1,28 @@
-# SEARCH PROBLEM - `degrees.py` project
+# CS50AI | Lecture 0 - Search | Project 1 - `degrees`
 
-CS50AI - 00 - Project 1
-<br>
+This project is a mandatory assignment from **CS50AI – Lecture 0: "Search"**.
+
+### 📌 Usage
+
+To run the project locally, follow these steps:
+
+1. **Clone the repository** to your local machine.
+2. **Navigate to the project directory**:  
+   ```sh
+   cd path/to/degrees
+   ```
+3. **Run the script in the terminal** 
+   ```sh
+   python3 degrees.py [optional: large/small]
+   ```
+3. **Enter the names** of the source / target actors when prompted. 
+
+3. **Wait for results** – the shortest connection path will be displayed. 
+
 <br>
 
-### Table of Contents
+
+## Table of Contents
 
 1. **[Introduction](#introduction)**
 
