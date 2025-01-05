@@ -1,16 +1,41 @@
-# SEARCH ALGORITHMS and degrees.py exercise
+# SEARCH PROBLEM - `degrees.py` project
+
+
+### Table of Contents
+
+1. **[Introduction](#introduction)**
+
+2. **[Terminology](#terminology)**
+    - [Agent](#agent)
+    - [State](#state)
+    - [Transition Model](#transition-model)
+    - [Actions](#actions)
+    - [State Space](#state-space)
+    - [Goal Test](#goal-test)
+    - [Path Cost](#path-cost)
+    - [Optimal Solution](#optimal-solution)
+
+3. **[Technical Overview](#technical-overview)**
+    - [`util.py`](#utilpy)
+    - [`degrees.py`](#degreespy)
+
+4. **[Algorithm Logic and Agent Perception](#algorithm-logic-and-agent-perception)**
+
+
+<br>
 
 ## Introduction
-Search problems involve an agent that is given an initial state and a goal state, and it returns a solution of how to get from the former to the latter. This project explores this concept.
+This project is a practical implementation of depth-first search (DFS) and breadth-first search (BFS) algorithms, aiming to explore the fundamental components of artificial intelligence (AI) programs, including the environment, agents, frontier, nodes, actions, and goal-testing mechanisms. The goal is to demonstrate how AI can be used to solve search problems, focusing on determining the degrees of separation between two actors in a movie database.
 
-The goal of this project is to use an agent to determine the degrees of separation between two actors by finding the movies they have co-starred in. The project uses search algorithms such as BFS (Breadth-First Search) and DFS (Depth-First Search) to find the shortest(?) path connecting two actors through a series of movies.
+In this project, the agent's task is to find the shortest path (in terms of movie collaborations) between two actors. The agent does so by searching for movies they have co-starred in, and by using search algorithms like BFS and DFS, it explores different connections between actors. The search process aims to uncover the fewest number of steps, or "degrees," needed to link one actor to another through their shared movie roles.
 
-The database consists of three main entities: actors (people), movies, and their associations (which actors starred in which movies). The project allows users to search for actors by name, load a movie database, and find the shortest path connecting two actors.
+The movie database is structured around three key entities: actors, movies, and the relationships between them (which actors starred in which movies). Users can search for actors by name, load the movie database, and find the shortest path between two actors. By leveraging BFS and DFS algorithms, the program demonstrates how search can be applied to real-world datasets.
 
+<br>
 
 ## Terminology
 
-#### **Agent:** 
+#### **Agent** 
 Definition: An agent is an entity that perceives its environment and acts upon that environment to achieve a goal. 
 
     E.g. In a navigator app, the agent would be a representation of a car that needs to decide on which actions to take to arrive at the destination. 
@@ -66,7 +91,7 @@ More precisely, actions can be modeled as a function:
 
     E.g. In this project, the state is the current actor (person_id), and the actions are the movies that the actor starred in. For each actor, the set of valid actions consists of all the movies they were part of. By choosing one of these movies, the agent moves to another actor.
 
-<br>
+
 
 #### **State Space** 
 
@@ -79,7 +104,6 @@ The state space can be visualized as a directed graph, where:
 - Actions (arrows) represent the movies that connect actors.
 
 
-<br>
 
 #### **Goal Test**
 
@@ -91,7 +115,8 @@ In this project, the goal test would be whether the agent (actor) has successful
     
     If the agent has not reached the target actor, the agent continues searching by exploring other possible actors connected by movies until the goal test is met.
 
-<br>
+
+
 #### **Path Cost**
 Path cost refers to the numerical value or cost associated with a sequence of actions (in this case, the movies the agent selects). The agent tries to find **the least costly path to the goal**, which may be based on criteria like the number of actions (movies) taken or any other defined measure of cost.
 
@@ -110,13 +135,17 @@ Suppose you are trying to connect Demi Moore to Tom Hanks.
 In this case, Path 2 would be the optimal solution because it takes fewer steps (1 movie) to connect Demi Moore and Tom Hanks, compared to Path 1, which involves 2 movies.
 
 <br>
+<br>
 
+## Technical Overview
 
-## `util.py`
+### `util.py`
 
 The `util.py` file contains essential **utility classes** used for implementing the search algorithms in this project. It defines key data structures that help represent the search space and manage the exploration process efficiently.
 
-### Class `Node()`:
+<br>
+
+#### Class `Node()`:
 The `Node` class is used to represent a single actor in the search space. It holds the details of the current state (actor's database id), the parent node (previous actor's node), and the action (movie) that links the current actor to the parent actor.
 
 If we think about the structure of the `Node` class:
@@ -145,7 +174,7 @@ In this problem:
 <br>
 
 
-### Class `StackFrontier()`:
+#### Class `StackFrontier()`:
 The StackFrontier class is a data structure that represents the frontier of a search algorithm (specifically a stack-based frontier). It follows the LIFO (Last In, First Out) principle, where the most recently added node is processed first.
 
 ```Python
@@ -195,7 +224,7 @@ class StackFrontier():
 
 The `StackFrontier` is used for __depth-first search (DFS)__, where nodes are explored by going as deep as possible before backtracking.
 
-### Example
+#### Example
 
 Suppose the frontier contains the following nodes:
 
@@ -217,7 +246,7 @@ This will return `True` because there is a node with `state == "2"` in the front
 
 <br>
 
-## Class `QueueFrontier()` (Subclass of `StackFrontier`)
+#### Class `QueueFrontier()` (Subclass of `StackFrontier`)
 
 The `QueueFrontier` class is a variation of `StackFrontier`, but it follows the **FIFO** (First In, First Out) principle, meaning that nodes are processed in the order they are added, making it suitable for breadth-first search (BFS).
 
@@ -236,8 +265,117 @@ class QueueFrontier(StackFrontier):
 
 This class enables breadth-first search (BFS), where the first node added is explored first.
 
+<br>
+<br>
 
-## Explaining the algorithm's logic
+### `Degrees.py`
+
+Technical Overview of `degrees.py`
+
+#### 1. `main()` Function:
+This is the beginning of our program. That's the first function that is called.
+
+- The program first checks the command-line arguments. If there are more than two arguments, it exits with an error message. If there's one argument, it uses it as the directory to load data from CSV files; otherwise, it defaults to the "large" directory.
+- It prints "Loading data..." and then calls `load_data(directory)` to load data from CSV files into memory. After the data is loaded, it prints "Data loaded."
+- The program then prompts the user to input two names. It attempts to find the corresponding person IDs using `person_id_for_name(name)`. If any of the names can't be found, the program exits.
+- Once both IDs are found, it calls `shortest_path(source, target)` to find the shortest path between the two people in terms of movie collaborations.
+- If a path is found, it prints the number of degrees of separation and details of each step in the path (which movie two people starred in). If no path is found, it prints "Not connected."
+
+#### 2. `load_data(directory)` Function:
+The function populates the `people`, `movies`, and `names` dictionaries by reading from the respective CSV files.
+
+- `people`: Maps person IDs to a dictionary containing the person’s name, birth year, and the set of movies they starred in.
+
+    ```Python
+    people = {
+        "1": {
+            "name": "Leonardo DiCaprio",
+            "birth": "1974",
+            "movies": {"10456", "11456"}
+        },
+        "2": {
+            "name": "Kate Winslet",
+            "birth": "1975",
+            "movies": {"10456"}
+        },
+        "3": {
+            "name": "Joseph Gordon-Levitt",
+            "birth": "1981",
+            "movies": {"11456"}
+        }
+    }
+    ```
+
+- `movies`: Maps movie IDs to a dictionary containing the movie title, year, and the set of person IDs (stars).
+
+    ```Python
+    movies = {
+        "10456": {
+            "title": "Titanic",
+            "year": "1997",
+            "stars": {"1", "2"}
+        },
+        "11456": {
+            "title": "Inception",
+            "year": "2010",
+            "stars": {"1", "3"}
+        }
+    }
+    ```
+
+- `names`: Maps a person's name (lowercased) to a set of person IDs, allowing quick lookups.
+
+    ```Python
+    names = {
+    "leonardo dicaprio": {"1"},
+    "kate winslet": {"2"},
+    "joseph gordon-levitt": {"3"}
+    } 
+    ```
+
+#### 3. `shortest_path(source, target)` Function:
+
+This is the search algorithm of our program.
+
+- This function finds the shortest path between two people using breadth-first search (BFS).
+- If the source and target are the same, it returns an empty list.
+- It initializes the BFS frontier with the source person and starts exploring neighbors (people who starred with the current person).
+- For each neighbor, it checks if it is the target. If it is, it calls `construct_path(node, movie_id, target)` to reconstruct and return the path.
+- If a neighbor hasn't been explored yet, it adds it to the frontier to explore further.
+- If no path is found, it returns `None`.
+
+<br> 
+
+**UTIL FUNCTIONS:**
+
+#### 4. `construct_path(node, movie_id, target)` Function:
+This is a (custom) util function that is used inside the `shortest_path(source, target)` Function.
+
+- Constructs the shortest path from the source to the target by backtracking from the target through the parent nodes.
+- It starts with the target and backtracks, collecting the movie ID and person ID pairs.
+- Once the entire path is backtracked, it reverses the path (since it was built in reverse order) and returns it.
+
+#### 5. `person_id_for_name(name)` Function:
+- Resolves a person's name to their corresponding IMDB ID.
+- It handles ambiguities by listing all matching people if there are multiple entries for the same name.
+- If there are multiple people with the same name, it asks the user to choose the correct one.
+
+#### 6. `neighbors_for_person(person_id)` Function:
+- Returns all (movie_id, person_id) pairs for people who starred in the same movies as the given person.
+- It looks up the movies the person has starred in and gathers all other actors from those movies, creating a set of (movie_id, person_id) pairs.
+
+#### Execution Flow:
+- When the script is run, it starts with `main()`.
+- `main()` loads the data, takes input for two people, and calls `shortest_path` to find the shortest connection.
+- The `shortest_path` function uses BFS (or DFS if configured) to explore co-actors and find the shortest path between the two people.
+- If a path is found, `construct_path` is used to trace the path back from the target to the source, and the path is printed.
+
+<br>
+<br>
+<br>
+
+
+## Algorithm Logic and Agent Perception
 
 ### How Does the Agent Perceive Its Environment?
 
@@ -267,14 +405,6 @@ So, if the agent is at Actor X, it can "see" all other actors who have shared a 
 
 This function essentially models the transitions between states (actors) based on the movies they starred in together.
 
-**Transition Model in Your Project**
-The transition model is described by which actor (state) the agent can move to, based on which movie (action) the agent chooses to explore.
-
-- State: The current actor (e.g., "Demi Moore").
-- Action: A movie (e.g., "A Few Good Men").
-- New State: The new actor that co-starred in the chosen movie (e.g., "Tom Hanks").
-
-In this sense, the transition from one actor to another is controlled by the movie the agent picks from the list of movies that the current actor starred in.
 
 #### 3. What the Agent Does With This Information
 
@@ -283,3 +413,13 @@ The agent processes this information and decides which actor to explore next.
 - If an actor has already been explored, it ignores them.
 - If an actor is the target, the search stops.
 - Otherwise, the agent moves forward by adding new actors to the search frontier.
+
+**Transition Model in Your Project**
+
+The transition model is described by which actor (state) the agent can move to, based on which movie (action) the agent chooses to explore.
+
+- State: The current actor (e.g., "Demi Moore").
+- Action: A movie (e.g., "A Few Good Men").
+- New State: The new actor that co-starred in the chosen movie (e.g., "Tom Hanks").
+
+In this sense, the transition from one actor to another is controlled by the movie the agent picks from the list of movies that the current actor starred in.
