@@ -26,6 +26,18 @@ class StackFrontier():
             self.frontier = self.frontier[:-1]
             return node
 
+    def __str__(self):
+        print()
+        print("## PRINTING FRONTIER ##")
+
+        node_num = 0
+        for node in self.frontier:
+            node_num += 1
+            print("Node ", node_num, ":")
+            print(node.state)
+            print(node.action)
+            print("=====")
+        return "## Done Printing Frontier ##"    
 
 class QueueFrontier(StackFrontier):
 

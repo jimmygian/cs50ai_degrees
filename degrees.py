@@ -125,64 +125,93 @@ def main():
             print(f"{i + 1}: {person1} and {person2} starred in {movie}")
 
 
+
+# =============== MY IMPLEMENTATION =============== #
+
 def shortest_path(source, target):
     """
     Returns the shortest list of (movie_id, person_id) pairs
     that connect the source to the target.
-
     If no possible path, returns None.
     """
 
-    # If IDs are the same
+    # If source and target are the same, return an empty path
     if source == target:
         return []
-    
 
-    # Keep track of number of states explored
-    num_explored = 0
-
-    # Initialize frontier to starting position
+    # Initialize the BFS/DFS frontier with the source node
     source_node = Node(state=source, parent=None, action=None)
     frontier = QueueFrontier()
     frontier.add(source_node)
 
-    # Initialize an empty explored set
+    # Track explored states
     explored = set()
 
-    # Keep looping until solution is found
-    while True:
-            
-        # If nothing left in frontier, then no path
-        if frontier.empty():
-            return None
-        
-        # Choose a node from frontier (same time as removing it from frontier)
+    # ==== SEARCH LOOP ==== #
+    while not frontier.empty():
+        # Remove a node from the frontier (FIFO behavior for BFS, FILO for DFS)
         node = frontier.remove()
-        # Add 1 to explored  
-        num_explored += 1
 
-        # If not, Mark node as explored
+        # Mark node as explored
         explored.add(node.state)
-        
-        # Add neighbors to frontier
-        node_neighbours = neighbors_for_person(node.state)
-        for movie_id, person_id in node_neighbours:
 
-            if not frontier.contains_state(person_id) and person_id not in explored:
-                child = Node(state=person_id, parent=node, action=movie_id) 
-
-                if child.state == target:
-                    solution = []
-
-                    while child.parent is not None:
-                        solution.append((child.action, child.state))
-                        child = child.parent
-                    solution.reverse()
-
-                    return solution
+        # Expand neighbors (co-actors) — these are the people the current actor starred with
+        for movie_id, neighbor_id in neighbors_for_person(node.state):
 
 
+            # ==== PATH CONSTRUCTION ==== #
+            # If found the target, reconstruct and return path
+            if neighbor_id == target:
+                return construct_path(node, movie_id, target)
+            
+
+            # If this neighbor hasn't been explored or is not in frontier, add it
+            if neighbor_id not in explored and not frontier.contains_state(neighbor_id):
+                child = Node(state=neighbor_id, parent=node, action=movie_id)
                 frontier.add(child)
+
+    # If no path is found, return None
+    return None
+    # ===================== #
+
+def construct_path(node, movie_id, target):
+    """
+    Constructs and returns the path from the source to the target by backtracking through parent nodes.
+    The path consists of (movie_id, person_id) pairs, where each pair represents a movie that connects
+    two actors in the path.
+    
+    Parameters:
+    - node (Node): This "final" node represents the actor that has starred with our target actor.
+    - movie_id (str): The ID of the movie that connects the target actor to the "node" actor.
+    - target (str): The ID of the target actor.
+
+    Returns:
+    - path (list): A list of (movie_id, person_id) pairs that represent the shortest path from the source actor
+      to the target actor. The list will be in the correct order, from source to target, after the function backtracks
+      and reverses the path.
+
+    Explanation:
+    - We backtrack from the target actor node to the source actor by following the parent nodes. The path is constructed
+      in reverse, so we reverse it at the end before returning it.
+    """
+    # Initialize the path with the target and the movie that connected the target to the parent node
+    path = [(movie_id, target)] # Start with the target actor and the movie that connects them
+    
+    # Then, backtrack through parent nodes to reconstruct the path from source to target
+    while node is not None:
+        # If the current node has an action (movie), add it to the path
+        if node.action is not None:
+            path.append((node.action, node.state)) # Add movie and actor pair to the path
+
+        # Move to the parent node to continue backtracking
+        node = node.parent
+
+    # Reverse the path to get the correct order (from source to target)
+    path.reverse()
+    
+    return path
+
+# ================================================= #
 
 
 
