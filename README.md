@@ -1,4 +1,4 @@
-# CS50AI | Lecture 0 - Search | Project 1 - `degrees`
+# CS50AI | Lecture 0 - Search | Project 0A - `degrees`
 
 This project is a mandatory assignment from **CS50AI – Lecture 0: "Search"**.
 
